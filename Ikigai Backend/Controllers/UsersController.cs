@@ -168,22 +168,26 @@ namespace Ikigai_Backend.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PutUser(int id, [FromBody] UpdateUserAdminDTO dto)
+        public async Task<IActionResult> PutUser(int id, [FromBody] UpdateUserAdminDTO userDTO)
         {
+            if (id != userDTO.Id)
+                return BadRequest("User ID mismatch");
+
+
             var user = await _context.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
                 return NotFound();
 
-            user.Name = dto.Name;
-            user.Email = dto.Email;
+            user.Name = userDTO.Name;
+            user.Email = userDTO.Email;
 
             // Update roles if provided
-            if (dto.Roles != null)
+            if (userDTO.Roles != null)
             {
                 // Remove existing roles
                 user.UserRoles.Clear();
                 // Add new roles
-                foreach (var roleStr in dto.Roles)
+                foreach (var roleStr in userDTO.Roles)
                 {
                     if (Enum.TryParse<Roles>(roleStr, out var role))
                     {
@@ -251,8 +255,11 @@ namespace Ikigai_Backend.Controllers
         // PUT: api/Users/5/self
         [HttpPut("{id}/updateUserByUser")]
         [Authorize]
-        public async Task<IActionResult> UpdateUserByUser(int id, [FromBody] UpdateUserDTO dto)
+        public async Task<IActionResult> UpdateUserByUser(int id, [FromBody] UpdateUserDTO userDTO)
         {
+            if (id != userDTO.Id)
+                return BadRequest("User ID mismatch");
+
             // Get user from DB
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -263,8 +270,8 @@ namespace Ikigai_Backend.Controllers
             if (userEmail == null || !string.Equals(user.Email, userEmail, StringComparison.OrdinalIgnoreCase))
                 return Forbid();
 
-            user.Name = dto.Name;
-            user.Email = dto.Email;
+            user.Name = userDTO.Name;
+            user.Email = userDTO.Email;
 
             try
             {

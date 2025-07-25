@@ -4,6 +4,7 @@ namespace Ikigai_Backend.DTOs.UserDTOs
 {
     public class UpdateUserDTO
     {
+        public int Id { get; set; }
         [Required]
         public string Name { get; set; }
 
