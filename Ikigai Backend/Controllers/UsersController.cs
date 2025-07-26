@@ -39,7 +39,6 @@ namespace Ikigai_Backend.Controllers
                     Id = u.Id,
                     Name = u.Name,
                     Email = u.Email,
-                    Roles = u.UserRoles.Select(ur => ur.RoleName.ToString()).ToList(),
                     Created_at = u.Created_at
                 })
                 .ToListAsync();
@@ -59,7 +58,6 @@ namespace Ikigai_Backend.Controllers
                     Id = u.Id,
                     Name = u.Name,
                     Email = u.Email,
-                    Roles = u.UserRoles.Select(ur => ur.RoleName.ToString()).ToList(),
                     Created_at = u.Created_at
                 })
                 .FirstOrDefaultAsync();
@@ -97,7 +95,6 @@ namespace Ikigai_Backend.Controllers
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Roles = user.UserRoles.Select(ur => ur.RoleName.ToString()).ToList(),
                 Created_at = user.Created_at
             };
 
@@ -127,7 +124,6 @@ namespace Ikigai_Backend.Controllers
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Roles = user.UserRoles.Select(ur => ur.RoleName.ToString()).ToList(),
                 Created_at = user.Created_at
             };
 
@@ -157,7 +153,6 @@ namespace Ikigai_Backend.Controllers
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Roles = user.UserRoles.Select(ur => ur.RoleName.ToString()).ToList(),
                 Created_at = user.Created_at
             };
 

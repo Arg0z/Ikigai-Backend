@@ -7,7 +7,7 @@ public class LoginRequestUserDTO
     [MaxLength(256)]
     public string Email { get; set; }
     [Required]
-    [MinLength(8, ErrorMessage = "Password must be at least 89 characters.")]
+    [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
     [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?""{}|<>]).{8,}$",
             ErrorMessage = "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.")]
     public string Password { get; set; }

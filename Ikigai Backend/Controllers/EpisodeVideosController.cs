@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Ikigai_Backend.Database;
+﻿using Ikigai_Backend.Database;
 using Ikigai_Backend.DbModels;
 using Ikigai_Backend.DTOs.EpisodeVideoDTO;
 using Ikigai_Backend.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ikigai_Backend.Controllers
 {
@@ -64,6 +65,7 @@ namespace Ikigai_Backend.Controllers
         // PUT: api/EpisodeVideos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutEpisodeVideo(int id, PutEpisodeVideoDTO episodeVideoDTO)
         {
             if (id != episodeVideoDTO.Id)
@@ -102,6 +104,7 @@ namespace Ikigai_Backend.Controllers
         // POST: api/EpisodeVideos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<GetEpisodeVideoDTO>> PostEpisodeVideo(
             [FromForm] PostEpisodeVideoDTO episodeVideoDTO,
             [FromForm] IFormFile videoFile)
@@ -133,7 +136,13 @@ namespace Ikigai_Backend.Controllers
             _context.EpisodeVideo.Add(episodeVideo);
             await _context.SaveChangesAsync();
 
-            await _animeService.UpdateAnimeLastUpdateAsync(episodeVideoDTO.EpisodeId);
+            var episode = await _context.Episodes.FindAsync(episodeVideo.EpisodeId);
+            if (episode == null)
+                return NotFound("Episode not found.");
+
+            int animeId = episode.AnimeId;
+
+            await _animeService.UpdateAnimeLastUpdateAsync(animeId);
 
             var getEpisodeVideoDTO = new GetEpisodeVideoDTO
             {
@@ -147,6 +156,7 @@ namespace Ikigai_Backend.Controllers
 
         // DELETE: api/EpisodeVideos/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteEpisodeVideo(int id)
         {
             var episodeVideo = await _context.EpisodeVideo.FindAsync(id);
@@ -159,6 +169,45 @@ namespace Ikigai_Backend.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // GET: api/EpisodeVideos/stream/5
+        [HttpGet("stream/{id}")]
+        public async Task<IActionResult> StreamVideo(int id)
+        {
+            var episodeVideo = await _context.EpisodeVideo.FindAsync(id);
+            if (episodeVideo == null || string.IsNullOrEmpty(episodeVideo.VideoUrl))
+                return NotFound();
+
+            // Get the absolute path to the video file
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), episodeVideo.VideoUrl.TrimStart('/'));
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var mimeType = "video/mp4"; // Adjust if you support other formats
+
+            return File(stream, mimeType, enableRangeProcessing: true);
+        }
+
+        // GET: api/EpisodeVideos/byEpisode/5
+        [HttpGet("byEpisode/{episodeId}")]
+        public async Task<ActionResult<IEnumerable<GetEpisodeVideoDTO>>> GetVideosByEpisode(int episodeId)
+        {
+            var videos = await _context.EpisodeVideo
+                .Where(ev => ev.EpisodeId == episodeId)
+                .Select(ev => new GetEpisodeVideoDTO
+                {
+                    Id = ev.Id,
+                    VideoName = ev.VideoName,
+                    EpisodeId = ev.EpisodeId
+                })
+                .ToListAsync();
+
+            if (!videos.Any())
+                return NotFound();
+
+            return videos;
         }
 
         private bool EpisodeVideoExists(int id)

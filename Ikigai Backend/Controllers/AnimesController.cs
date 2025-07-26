@@ -66,6 +66,32 @@ namespace Ikigai_Backend.Controllers
             return anime;
         }
 
+        // GET: api/Animes/search
+        [HttpGet("searchByName")]
+        public async Task<ActionResult<IEnumerable<GetAnimeDTO>>> SearchAnimes([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Search term is required.");
+
+            var animes = await _context.Animes
+                .Where(a => a.AnimeTitle.Contains(name))
+                .Select(a => new GetAnimeDTO
+                {
+                    Id = a.Id,
+                    AnimeTitle = a.AnimeTitle,
+                    Synopsis = a.Synopsis,
+                    ReleaseDate = a.ReleaseDate,
+                    Studio = a.Studio,
+                    LastUpdate = a.LastUpdate
+                })
+                .ToListAsync();
+
+            if (!animes.Any())
+                return NotFound();
+
+            return animes;
+        }
+
         // PUT: api/Animes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -111,6 +137,7 @@ namespace Ikigai_Backend.Controllers
         // POST: api/Animes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<GetAnimeDTO>> PostAnime(PostAnimeDTO animePostDTO)
         {
             if (animePostDTO == null)
@@ -145,6 +172,8 @@ namespace Ikigai_Backend.Controllers
 
         // DELETE: api/Animes/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> DeleteAnime(int id)
         {
             var anime = await _context.Animes.FindAsync(id);

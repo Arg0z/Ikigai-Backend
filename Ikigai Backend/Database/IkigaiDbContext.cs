@@ -50,5 +50,7 @@ namespace Ikigai_Backend.Database
                 .IsUnique();
         }
         public DbSet<Ikigai_Backend.DbModels.EpisodeVideo> EpisodeVideo { get; set; } = default!;
+        public DbSet<Ikigai_Backend.DbModels.EpisodeAudio> EpisodeAudio { get; set; } = default!;
+        public DbSet<Ikigai_Backend.DbModels.EpisodeSub> EpisodeSub { get; set; } = default!;
     }
 }
