@@ -4,6 +4,7 @@ using Ikigai_Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ikigai_Backend.Migrations
 {
     [DbContext(typeof(IkigaiDbContext))]
-    partial class IkigaiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250728044023_UpdatedAnimeAndEpisodes")]
+    partial class UpdatedAnimeAndEpisodes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

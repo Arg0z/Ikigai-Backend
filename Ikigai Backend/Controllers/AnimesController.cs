@@ -34,6 +34,8 @@ namespace Ikigai_Backend.Controllers
                     AnimeTitle = a.AnimeTitle,
                     Synopsis = a.Synopsis,
                     ReleaseDate = a.ReleaseDate,
+                    UploadDate = a.UploadDate,
+                    IsOngoing = a.IsOngoing,
                     Studio = a.Studio,
                     LastUpdate = a.LastUpdate
                 })
@@ -59,6 +61,8 @@ namespace Ikigai_Backend.Controllers
                 AnimeTitle = animeDB.AnimeTitle,
                 Synopsis = animeDB.Synopsis,
                 ReleaseDate = animeDB.ReleaseDate,
+                UploadDate = animeDB.UploadDate,
+                IsOngoing = animeDB.IsOngoing,
                 Studio = animeDB.Studio,
                 LastUpdate = animeDB.LastUpdate
             };
@@ -66,7 +70,7 @@ namespace Ikigai_Backend.Controllers
             return anime;
         }
 
-        // GET: api/Animes/search
+        // GET: api/Animes/searchByName
         [HttpGet("searchByName")]
         public async Task<ActionResult<IEnumerable<GetAnimeDTO>>> SearchAnimes([FromQuery] string name)
         {
@@ -81,6 +85,8 @@ namespace Ikigai_Backend.Controllers
                     AnimeTitle = a.AnimeTitle,
                     Synopsis = a.Synopsis,
                     ReleaseDate = a.ReleaseDate,
+                    UploadDate = a.UploadDate,
+                    IsOngoing = a.IsOngoing,
                     Studio = a.Studio,
                     LastUpdate = a.LastUpdate
                 })
@@ -112,8 +118,9 @@ namespace Ikigai_Backend.Controllers
             anime.AnimeTitle = dto.AnimeTitle;
             anime.Synopsis = dto.Synopsis;
             anime.ReleaseDate = dto.ReleaseDate;
+            anime.UploadDate = dto.UploadDate;
+            anime.IsOngoing = dto.IsOngoing;
             anime.Studio = dto.Studio;
-            // Optionally update LastUpdate if you want
 
             try
             {
@@ -150,6 +157,8 @@ namespace Ikigai_Backend.Controllers
                 AnimeTitle = animePostDTO.AnimeTitle,
                 Synopsis = animePostDTO.Synopsis,
                 ReleaseDate = animePostDTO.ReleaseDate,
+                UploadDate = animePostDTO.UploadDate,
+                IsOngoing = animePostDTO.IsOngoing,
                 Studio = animePostDTO.Studio,
                 LastUpdate = animePostDTO.LastUpdate
             };
@@ -163,6 +172,8 @@ namespace Ikigai_Backend.Controllers
                 AnimeTitle = anime.AnimeTitle,
                 Synopsis = anime.Synopsis,
                 ReleaseDate = anime.ReleaseDate,
+                UploadDate = anime.UploadDate,
+                IsOngoing = anime.IsOngoing,
                 Studio = anime.Studio,
                 LastUpdate = anime.LastUpdate
             };

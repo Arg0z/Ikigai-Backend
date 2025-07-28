@@ -1,4 +1,6 @@
-﻿namespace Ikigai_Backend.DbModels
+﻿using Ikigai_Backend.Constants;
+
+namespace Ikigai_Backend.DbModels
 {
     public class EpisodeVideo
     {
@@ -7,5 +9,6 @@
         public string VideoUrl { get; set; } = string.Empty;
         public int EpisodeId { get; set; }
         public Episode Episode { get; set; } = null!;
+        public VideoResolution Resolution { get; set; }
     }
 }

@@ -35,6 +35,7 @@ namespace Ikigai_Backend.Controllers
                 .Select(e => new GetEpisodeDTO
                 {
                     Id = e.Id,
+                    SeasonNumber = e.SeasonNumber,
                     EpisodeNumber = e.EpisodeNumber,
                     Title = e.Title,
                     AnimeId = e.AnimeId,
@@ -46,7 +47,7 @@ namespace Ikigai_Backend.Controllers
 
         // GET: api/Episodes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Episode>> GetEpisode(int id)
+        public async Task<ActionResult<GetEpisodeDTO>> GetEpisode(int id)
         {
             var episode = await _context.Episodes.FindAsync(id);
 
@@ -58,13 +59,14 @@ namespace Ikigai_Backend.Controllers
             var episodeDTO = new GetEpisodeDTO
             {
                 Id = episode.Id,
+                SeasonNumber = episode.SeasonNumber,
                 EpisodeNumber = episode.EpisodeNumber,
                 Title = episode.Title,
                 AnimeId = episode.AnimeId,
                 isMovie = episode.isMovie
             };
 
-            return episode;
+            return episodeDTO;
         }
 
         // PUT: api/Episodes/5
@@ -84,6 +86,7 @@ namespace Ikigai_Backend.Controllers
                 return NotFound();
             }
 
+            episode.SeasonNumber = dto.SeasonNumber;
             episode.EpisodeNumber = dto.EpisodeNumber;
             episode.Title = dto.Title;
             episode.AnimeId = dto.AnimeId;
@@ -112,10 +115,11 @@ namespace Ikigai_Backend.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Episode>> PostEpisode(PostEpisodeDTO episodePostDTO)
+        public async Task<ActionResult<GetEpisodeDTO>> PostEpisode(PostEpisodeDTO episodePostDTO)
         {
             var episode = new Episode
             {
+                SeasonNumber = episodePostDTO.SeasonNumber,
                 EpisodeNumber = episodePostDTO.EpisodeNumber,
                 Title = episodePostDTO.Title,
                 AnimeId = episodePostDTO.AnimeId,
@@ -129,6 +133,7 @@ namespace Ikigai_Backend.Controllers
             var getEpisodeDTO = new GetEpisodeDTO
             {
                 Id = episode.Id,
+                SeasonNumber = episode.SeasonNumber,
                 EpisodeNumber = episode.EpisodeNumber,
                 Title = episode.Title,
                 AnimeId = episode.AnimeId,
@@ -160,6 +165,7 @@ namespace Ikigai_Backend.Controllers
             return _context.Episodes.Any(e => e.Id == id);
         }
 
+        // GET: api/Episodes/episodeByAnime/{animeId}
         [HttpGet("episodeByAnime/{animeId}")]
         public async Task<ActionResult<IEnumerable<GetEpisodeDTO>>> GetEpisodesByAnime(int animeId)
         {
@@ -168,6 +174,7 @@ namespace Ikigai_Backend.Controllers
                 .Select(e => new GetEpisodeDTO
                 {
                     Id = e.Id,
+                    SeasonNumber = e.SeasonNumber,
                     EpisodeNumber = e.EpisodeNumber,
                     Title = e.Title,
                     AnimeId = e.AnimeId,

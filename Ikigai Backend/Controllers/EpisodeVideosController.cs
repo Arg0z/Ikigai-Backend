@@ -34,7 +34,8 @@ namespace Ikigai_Backend.Controllers
             {
                 Id = ev.Id,
                 VideoName = ev.VideoName,
-                EpisodeId = ev.EpisodeId
+                EpisodeId = ev.EpisodeId,
+                Resolution = ev.Resolution
             })
             .ToListAsync();
 
@@ -56,7 +57,8 @@ namespace Ikigai_Backend.Controllers
             {
                 Id = episodeVideo.Id,
                 VideoName = episodeVideo.VideoName,
-                EpisodeId = episodeVideo.EpisodeId
+                EpisodeId = episodeVideo.EpisodeId,
+                Resolution = episodeVideo.Resolution
             };
 
             return episodeVideoDTO;
@@ -81,6 +83,7 @@ namespace Ikigai_Backend.Controllers
 
             existingEpisodeVideo.VideoName = episodeVideoDTO.VideoName;
             existingEpisodeVideo.EpisodeId = episodeVideoDTO.EpisodeId;
+            existingEpisodeVideo.Resolution = episodeVideoDTO.Resolution;
 
             try
             {
@@ -128,7 +131,8 @@ namespace Ikigai_Backend.Controllers
             {
                 VideoName = dto.VideoName,
                 EpisodeId = dto.EpisodeId,
-                VideoUrl = $"/UploadedVideos/{uniqueFileName}" // This is the relative URL for serving the file
+                VideoUrl = $"/UploadedVideos/{uniqueFileName}", // This is the relative URL for serving the file
+                Resolution = dto.Resolution
             };
 
             _context.EpisodeVideo.Add(episodeVideo);
@@ -146,7 +150,8 @@ namespace Ikigai_Backend.Controllers
             {
                 Id = episodeVideo.Id,
                 VideoName = episodeVideo.VideoName,
-                EpisodeId = episodeVideo.EpisodeId
+                EpisodeId = episodeVideo.EpisodeId,
+                Resolution = episodeVideo.Resolution
             };
 
             return CreatedAtAction("GetEpisodeVideo", new { id = getEpisodeVideoDTO.Id }, getEpisodeVideoDTO);
@@ -198,7 +203,8 @@ namespace Ikigai_Backend.Controllers
                 {
                     Id = ev.Id,
                     VideoName = ev.VideoName,
-                    EpisodeId = ev.EpisodeId
+                    EpisodeId = ev.EpisodeId,
+                    Resolution = ev.Resolution
                 })
                 .ToListAsync();
 
