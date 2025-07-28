@@ -4,5 +4,6 @@
     {
         public string AudioName { get; set; }
         public int EpisodeId { get; set; }
+        public IFormFile AudioFile { get; set; }
     }
 }

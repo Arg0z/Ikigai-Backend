@@ -105,11 +105,9 @@ namespace Ikigai_Backend.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<GetEpisodeVideoDTO>> PostEpisodeVideo(
-            [FromForm] PostEpisodeVideoDTO episodeVideoDTO,
-            [FromForm] IFormFile videoFile)
+        public async Task<ActionResult<GetEpisodeVideoDTO>> PostEpisodeVideo([FromForm] PostEpisodeVideoDTO dto)
         {
-            if (videoFile == null || videoFile.Length == 0)
+            if (dto.VideoFile == null || dto.VideoFile.Length == 0)
                 return BadRequest("No video file uploaded.");
 
             // Save the file to a folder in your project (e.g., "UploadedVideos")
@@ -117,19 +115,19 @@ namespace Ikigai_Backend.Controllers
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(videoFile.FileName)}";
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(dto.VideoFile.FileName)}";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await videoFile.CopyToAsync(stream);
+                await dto.VideoFile.CopyToAsync(stream);
             }
 
             // Save the video info in the database
             var episodeVideo = new EpisodeVideo
             {
-                VideoName = episodeVideoDTO.VideoName,
-                EpisodeId = episodeVideoDTO.EpisodeId,
+                VideoName = dto.VideoName,
+                EpisodeId = dto.EpisodeId,
                 VideoUrl = $"/UploadedVideos/{uniqueFileName}" // This is the relative URL for serving the file
             };
 

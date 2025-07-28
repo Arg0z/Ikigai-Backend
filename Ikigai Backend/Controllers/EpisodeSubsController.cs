@@ -125,29 +125,27 @@ namespace Ikigai_Backend.Controllers
         // POST: api/EpisodeSubs
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<GetEpisodeSubDTO>> PostEpisodeSub(
-            [FromForm] PostEpisodeSubDTO episodeSubDTO,
-            [FromForm] IFormFile subFile)
+        public async Task<ActionResult<GetEpisodeSubDTO>> PostEpisodeSub([FromForm] PostEpisodeSubDTO dto)
         {
-            if (subFile == null || subFile.Length == 0)
+            if (dto.SubFile == null || dto.SubFile.Length == 0)
                 return BadRequest("No subtitle file uploaded.");
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "UploadedSubs");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(subFile.FileName)}";
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(dto.SubFile.FileName)}";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await subFile.CopyToAsync(stream);
+                await dto.SubFile.CopyToAsync(stream);
             }
 
             var episodeSub = new EpisodeSub
             {
-                SubName = episodeSubDTO.SubName,
-                EpisodeId = episodeSubDTO.EpisodeId,
+                SubName = dto.SubName,
+                EpisodeId = dto.EpisodeId,
                 SubUrl = $"/UploadedSubs/{uniqueFileName}"
             };
 
@@ -160,7 +158,7 @@ namespace Ikigai_Backend.Controllers
 
             int animeId = episode.AnimeId;
 
-            await _animeService.UpdateAnimeLastUpdateAsync(animeId)
+            await _animeService.UpdateAnimeLastUpdateAsync(animeId);
 
             var getEpisodeSubDTO = new GetEpisodeSubDTO
             {

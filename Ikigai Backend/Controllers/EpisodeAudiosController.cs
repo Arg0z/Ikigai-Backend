@@ -128,29 +128,27 @@ namespace Ikigai_Backend.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<GetEpisodeAudioDTO>> PostEpisodeAudio(
-            [FromForm] PostEpisodeAudioDTO episodeAudioDTO,
-            [FromForm] IFormFile audioFile)
+        public async Task<ActionResult<GetEpisodeAudioDTO>> PostEpisodeAudio([FromForm] PostEpisodeAudioDTO dto)
         {
-            if (audioFile == null || audioFile.Length == 0)
+            if (dto.AudioFile == null || dto.AudioFile.Length == 0)
                 return BadRequest("No audio file uploaded.");
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "UploadedAudios");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(audioFile.FileName)}";
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(dto.AudioFile.FileName)}";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await audioFile.CopyToAsync(stream);
+                await dto.AudioFile.CopyToAsync(stream);
             }
 
             var episodeAudio = new EpisodeAudio
             {
-                AudioName = episodeAudioDTO.AudioName,
-                EpisodeId = episodeAudioDTO.EpisodeId,
+                AudioName = dto.AudioName,
+                EpisodeId = dto.EpisodeId,
                 AudioUrl = $"/UploadedAudios/{uniqueFileName}"
             };
 

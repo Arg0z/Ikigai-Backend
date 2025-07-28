@@ -73,7 +73,7 @@ namespace Ikigai_Backend.Controllers
         // POST: api/Users
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<GetUserDTO>> PostUser([FromBody] SignUpRequestAdminDTO request)
+        public async Task<ActionResult<GetUserDTO>> PostUser([FromBody] SignupRequestAdminUserDTO request)
         {
             var roles = request.Roles?.Select(r => Enum.Parse<Roles>(r)).ToList()
                 ?? new List<Roles> { Roles.User };
@@ -133,9 +133,9 @@ namespace Ikigai_Backend.Controllers
         // POST: api/Users/signup/admin
         [HttpPost("signup/admin")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<GetUserDTO>> AdminSignup([FromBody] SignupRequestUserDTO request, [FromBody] List<string> roles)
+        public async Task<ActionResult<GetUserDTO>> AdminSignup([FromBody] SignupRequestAdminUserDTO request)
         {
-            var parsedRoles = roles?.Select(r => Enum.Parse<Roles>(r)).ToList() ?? new List<Roles> { Roles.User };
+            var parsedRoles = request.Roles?.Select(r => Enum.Parse<Roles>(r)).ToList() ?? new List<Roles> { Roles.User };
             var user = new User
             {
                 Name = request.Name,

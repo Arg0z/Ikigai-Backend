@@ -1,6 +1,7 @@
 using Ikigai_Backend.Constants;
 using Ikigai_Backend.Database;
 using Ikigai_Backend.DbModels;
+using Ikigai_Backend.Services;   // Add this if not present
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -78,6 +79,8 @@ builder.Services.AddDbContext<IkigaiDbContext>(options =>
 // Add controllers
 builder.Services.AddControllers();
 builder.Services.AddScoped<JwtTokenService>();
+
+builder.Services.AddScoped<AnimeService>();
 
 var app = builder.Build();
 

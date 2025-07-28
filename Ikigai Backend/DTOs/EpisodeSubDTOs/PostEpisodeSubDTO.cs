@@ -4,5 +4,6 @@ namespace Ikigai_Backend.DTOs.EpisodeSubDTOs
     {
         public string SubName { get; set; }
         public int EpisodeId { get; set; }
+        public IFormFile SubFile { get; set; }
     }
 }   

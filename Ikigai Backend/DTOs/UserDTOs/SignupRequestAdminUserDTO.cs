@@ -2,7 +2,7 @@
 
 namespace Ikigai_Backend.DTOs.UserDTOs
 {
-    public class SignUpRequestAdminDTO
+    public class SignupRequestAdminUserDTO
     {
         [Required]
         public string Name { get; set; }
