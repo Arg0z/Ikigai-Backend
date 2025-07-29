@@ -1,4 +1,7 @@
-﻿namespace Ikigai_Backend.DTOs.AnimeDTOs
+﻿using Microsoft.AspNetCore.Http;
+using System;
+
+namespace Ikigai_Backend.DTOs.AnimeDTOs
 {
     public class PostAnimeDTO
     {
@@ -9,5 +12,6 @@
         public bool IsOngoing { get; set; }
         public string Studio { get; set; } = string.Empty;
         public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
+        public IFormFile? ImageFile { get; set; } // For image upload
     }
 }

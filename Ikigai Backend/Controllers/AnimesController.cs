@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ namespace Ikigai_Backend.Controllers
     public class AnimesController : ControllerBase
     {
         private readonly IkigaiDbContext _context;
-            
+
         public AnimesController(IkigaiDbContext context)
         {
             _context = context;
@@ -37,7 +38,8 @@ namespace Ikigai_Backend.Controllers
                     UploadDate = a.UploadDate,
                     IsOngoing = a.IsOngoing,
                     Studio = a.Studio,
-                    LastUpdate = a.LastUpdate
+                    LastUpdate = a.LastUpdate,
+                    ImageUrl = a.ImageUrl
                 })
                 .ToListAsync();
 
@@ -55,7 +57,7 @@ namespace Ikigai_Backend.Controllers
                 return NotFound();
             }
 
-            GetAnimeDTO anime = new GetAnimeDTO
+            var anime = new GetAnimeDTO
             {
                 Id = animeDB.Id,
                 AnimeTitle = animeDB.AnimeTitle,
@@ -64,7 +66,8 @@ namespace Ikigai_Backend.Controllers
                 UploadDate = animeDB.UploadDate,
                 IsOngoing = animeDB.IsOngoing,
                 Studio = animeDB.Studio,
-                LastUpdate = animeDB.LastUpdate
+                LastUpdate = animeDB.LastUpdate,
+                ImageUrl = animeDB.ImageUrl
             };
 
             return anime;
@@ -88,7 +91,8 @@ namespace Ikigai_Backend.Controllers
                     UploadDate = a.UploadDate,
                     IsOngoing = a.IsOngoing,
                     Studio = a.Studio,
-                    LastUpdate = a.LastUpdate
+                    LastUpdate = a.LastUpdate,
+                    ImageUrl = a.ImageUrl
                 })
                 .ToListAsync();
 
@@ -99,10 +103,9 @@ namespace Ikigai_Backend.Controllers
         }
 
         // PUT: api/Animes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PutAnime(int id, UpdateAnimeDTO dto)
+        public async Task<IActionResult> PutAnime(int id, [FromForm] UpdateAnimeDTO dto)
         {
             if (id != dto.Id)
             {
@@ -121,6 +124,22 @@ namespace Ikigai_Backend.Controllers
             anime.UploadDate = dto.UploadDate;
             anime.IsOngoing = dto.IsOngoing;
             anime.Studio = dto.Studio;
+
+            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "UploadedAnimeImages");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(dto.ImageFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.ImageFile.CopyToAsync(stream);
+                }
+                anime.ImageUrl = $"/UploadedAnimeImages/{uniqueFileName}";
+            }
 
             try
             {
@@ -142,14 +161,30 @@ namespace Ikigai_Backend.Controllers
         }
 
         // POST: api/Animes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<GetAnimeDTO>> PostAnime(PostAnimeDTO animePostDTO)
+        public async Task<ActionResult<GetAnimeDTO>> PostAnime([FromForm] PostAnimeDTO animePostDTO)
         {
             if (animePostDTO == null)
             {
                 return BadRequest("Anime data is null.");
+            }
+
+            string imageUrl = string.Empty;
+            if (animePostDTO.ImageFile != null && animePostDTO.ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "UploadedAnimeImages");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(animePostDTO.ImageFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await animePostDTO.ImageFile.CopyToAsync(stream);
+                }
+                imageUrl = $"/UploadedAnimeImages/{uniqueFileName}";
             }
 
             var anime = new Anime
@@ -160,7 +195,8 @@ namespace Ikigai_Backend.Controllers
                 UploadDate = animePostDTO.UploadDate,
                 IsOngoing = animePostDTO.IsOngoing,
                 Studio = animePostDTO.Studio,
-                LastUpdate = animePostDTO.LastUpdate
+                LastUpdate = animePostDTO.LastUpdate,
+                ImageUrl = imageUrl
             };
 
             _context.Animes.Add(anime);
@@ -175,7 +211,8 @@ namespace Ikigai_Backend.Controllers
                 UploadDate = anime.UploadDate,
                 IsOngoing = anime.IsOngoing,
                 Studio = anime.Studio,
-                LastUpdate = anime.LastUpdate
+                LastUpdate = anime.LastUpdate,
+                ImageUrl = anime.ImageUrl
             };
 
             return CreatedAtAction("GetAnime", new { id = animeGetDto.Id }, animeGetDto);
@@ -184,7 +221,6 @@ namespace Ikigai_Backend.Controllers
         // DELETE: api/Animes/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-
         public async Task<IActionResult> DeleteAnime(int id)
         {
             var anime = await _context.Animes.FindAsync(id);
@@ -197,6 +233,23 @@ namespace Ikigai_Backend.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // GET: api/Animes/image/5
+        [HttpGet("image/{id}")]
+        public async Task<IActionResult> GetAnimeImage(int id)
+        {
+            var anime = await _context.Animes.FindAsync(id);
+            if (anime == null || string.IsNullOrEmpty(anime.ImageUrl))
+                return NotFound();
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), anime.ImageUrl.TrimStart('/'));
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+
+            var mimeType = "image/jpeg"; // Adjust if you support other formats
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return File(stream, mimeType, enableRangeProcessing: false);
         }
 
         private bool AnimeExists(int id)

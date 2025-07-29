@@ -13,6 +13,11 @@ namespace Ikigai_Backend.Database
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Anime> Animes { get; set; }
         public DbSet<Episode> Episodes { get; set; }
+        public DbSet<EpisodeVideo> EpisodeVideo { get; set; } = default!;
+        public DbSet<EpisodeAudio> EpisodeAudio { get; set; } = default!;
+        public DbSet<EpisodeSub> EpisodeSub { get; set; } = default!;
+        public DbSet<Playlist> Playlists { get; set; } = default!;
+        public DbSet<AnimePlaylist> AnimePlaylists { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,13 +49,29 @@ namespace Ikigai_Backend.Database
                 .WithMany(e => e.EpisodeSubtitles)
                 .HasForeignKey(es => es.EpisodeId);
 
+            // Playlist relationships
+            modelBuilder.Entity<Playlist>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId);
+
+            modelBuilder.Entity<AnimePlaylist>()
+                .HasKey(ap => new { ap.AnimeId, ap.PlaylistId });
+
+            modelBuilder.Entity<AnimePlaylist>()
+                .HasOne(ap => ap.Anime)
+                .WithMany()
+                .HasForeignKey(ap => ap.AnimeId);
+
+            modelBuilder.Entity<AnimePlaylist>()
+                .HasOne(ap => ap.Playlist)
+                .WithMany(p => p.AnimePlaylists)
+                .HasForeignKey(ap => ap.PlaylistId);
+
             // Ensure user's email is unique
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
         }
-        public DbSet<Ikigai_Backend.DbModels.EpisodeVideo> EpisodeVideo { get; set; } = default!;
-        public DbSet<Ikigai_Backend.DbModels.EpisodeAudio> EpisodeAudio { get; set; } = default!;
-        public DbSet<Ikigai_Backend.DbModels.EpisodeSub> EpisodeSub { get; set; } = default!;
     }
 }
