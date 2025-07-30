@@ -18,5 +18,7 @@ namespace Ikigai_Backend.DbModels
         public List<Favourite> UserFavourites { get; set; } = new();
         public List<Following> UserFollowings { get; set; } = new();
         public List<Review> Reviews { get; set; } = new();
+        public List<History> Histories { get; set; } = new();
+        public List<Playlist> Playlists { get; set; } = new();
     }
 }

@@ -13,5 +13,6 @@
         public List<EpisodeVideo> EpisodeVideos { get; set; } = new();
         public List<EpisodeAudio> EpisodeAudios { get; set; } = new();
         public List<EpisodeSub> EpisodeSubtitles { get; set; } = new();
+        public List<History> Histories { get; set; } = new();
     }
 }

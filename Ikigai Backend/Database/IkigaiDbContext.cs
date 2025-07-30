@@ -18,6 +18,13 @@ namespace Ikigai_Backend.Database
         public DbSet<EpisodeSub> EpisodeSub { get; set; } = default!;
         public DbSet<Playlist> Playlists { get; set; } = default!;
         public DbSet<AnimePlaylist> AnimePlaylists { get; set; } = default!;
+        public DbSet<AnimeGenre> AnimeGenres { get; set; } = default!;
+        public DbSet<Genre> Genres { get; set; } = default!;
+        public DbSet<Review> Reviews { get; set; } = default!;
+        public DbSet<Favourite> UserFavourites { get; set; } = default!;
+        public DbSet<Following> UserFollowings { get; set; } = default!;
+        public DbSet<History> Histories { get; set; } = default!;
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +35,11 @@ namespace Ikigai_Backend.Database
                 .HasOne(ur => ur.User)
                 .WithMany(u => u.UserRoles)
                 .HasForeignKey(ur => ur.UserId);
+
+            // Ensure user's email is unique
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             modelBuilder.Entity<Episode>()
                 .HasOne(e => e.Anime)
@@ -68,11 +80,6 @@ namespace Ikigai_Backend.Database
                 .WithMany(p => p.AnimePlaylists)
                 .HasForeignKey(ap => ap.PlaylistId);
 
-            // Ensure user's email is unique
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
             // AnimeGenre composite key and relationships
             modelBuilder.Entity<AnimeGenre>()
                 .HasKey(ag => new { ag.AnimeId, ag.GenreId });
@@ -103,7 +110,44 @@ namespace Ikigai_Backend.Database
                 .HasForeignKey(r => r.AnimeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ... rest of your configuration ...
+            modelBuilder.Entity<Favourite>()
+                .HasKey(f => new { f.UserId, f.AnimeId });
+
+            modelBuilder.Entity<Favourite>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId);
+
+            modelBuilder.Entity<Favourite>()
+                .HasOne(f => f.Anime)
+                .WithMany()
+                .HasForeignKey(f => f.AnimeId);
+
+            modelBuilder.Entity<Following>()
+                .HasKey(f => new { f.UserId, f.AnimeId });
+
+            modelBuilder.Entity<Following>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId);
+
+            modelBuilder.Entity<Following>()
+                .HasOne(f => f.Anime)
+                .WithMany()
+                .HasForeignKey(f => f.AnimeId);
+
+            modelBuilder.Entity<History>()
+                .HasKey(h => new { h.UserId, h.EpisodeID });
+
+            modelBuilder.Entity<History>()
+                .HasOne(h => h.User)
+                .WithMany(u => u.Histories)
+                .HasForeignKey(h => h.UserId);
+
+            modelBuilder.Entity<History>()
+                .HasOne(h => h.Episode)
+                .WithMany(a => a.Histories)
+                .HasForeignKey(h => h.Episode);
         }
     }
 }
