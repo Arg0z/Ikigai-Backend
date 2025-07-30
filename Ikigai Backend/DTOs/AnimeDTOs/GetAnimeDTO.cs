@@ -12,5 +12,7 @@ namespace Ikigai_Backend.DTOs.AnimeDTOs
         public bool IsOngoing { get; set; }
         public string Studio { get; set; } = string.Empty;
         public DateTime LastUpdate { get; set; }
+        public string ImageUrl { get; set; } = string.Empty; // Add this to return the image path
     }
 }
+    

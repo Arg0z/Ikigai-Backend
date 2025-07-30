@@ -13,14 +13,11 @@ namespace Ikigai_Backend.Database
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Anime> Animes { get; set; }
         public DbSet<Episode> Episodes { get; set; }
-        public DbSet<Favourite> UserFavourites { get; set; }
-        public DbSet<Following> UserFollowings { get; set; }
         public DbSet<EpisodeVideo> EpisodeVideo { get; set; } = default!;
         public DbSet<EpisodeAudio> EpisodeAudio { get; set; } = default!;
         public DbSet<EpisodeSub> EpisodeSub { get; set; } = default!;
-        public DbSet<Genre> Genres { get; set; } = default!;         // Add this line
-        public DbSet<AnimeGenre> AnimeGenres { get; set; } = default!; // Add this line
-        public DbSet<Review> Reviews { get; set; } = default!;
+        public DbSet<Playlist> Playlists { get; set; } = default!;
+        public DbSet<AnimePlaylist> AnimePlaylists { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,38 +49,24 @@ namespace Ikigai_Backend.Database
                 .WithMany(e => e.EpisodeSubtitles)
                 .HasForeignKey(es => es.EpisodeId);
 
-            // Composite key and foreign keys for Favourite
-            modelBuilder.Entity<Favourite>()
-                .HasKey(f => new { f.UserId, f.AnimeId });
-
-            modelBuilder.Entity<Favourite>()
-                .HasOne(f => f.User)
+            // Playlist relationships
+            modelBuilder.Entity<Playlist>()
+                .HasOne(p => p.User)
                 .WithMany()
-                .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(p => p.UserId);
 
-            modelBuilder.Entity<Favourite>()
-                .HasOne(f => f.Anime)
+            modelBuilder.Entity<AnimePlaylist>()
+                .HasKey(ap => new { ap.AnimeId, ap.PlaylistId });
+
+            modelBuilder.Entity<AnimePlaylist>()
+                .HasOne(ap => ap.Anime)
                 .WithMany()
-                .HasForeignKey(f => f.AnimeId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(ap => ap.AnimeId);
 
-            // Composite key and foreign keys for Following
-            modelBuilder.Entity<Following>()
-                .HasKey(f => new { f.UserId, f.AnimeId });
-
-            modelBuilder.Entity<Following>()
-                .HasOne(f => f.User)
-                .WithMany()
-                .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Following>()
-                .HasOne(f => f.Anime)
-                .WithMany()
-                .HasForeignKey(f => f.AnimeId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            modelBuilder.Entity<AnimePlaylist>()
+                .HasOne(ap => ap.Playlist)
+                .WithMany(p => p.AnimePlaylists)
+                .HasForeignKey(ap => ap.PlaylistId);
 
             // Ensure user's email is unique
             modelBuilder.Entity<User>()
